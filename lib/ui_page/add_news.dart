@@ -20,6 +20,7 @@ class _AddNewsState extends State<AddNews> {
       'content' : contentNews.text
     });
   }
+
   // Function Take Image
   Future _takeImage() async {
     print('Picker is Called');
@@ -30,6 +31,8 @@ class _AddNewsState extends State<AddNews> {
       });
     }
   }
+
+
   // Function Edit Image / Upload Image
   updateImage1(File imageFile) async {
     // open a bytestream
