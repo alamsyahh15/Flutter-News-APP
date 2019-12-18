@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:news_project/constant/ConstantFile.dart';
 
-
 class SliderHome extends StatefulWidget {
   @override
   _SliderHomeState createState() => _SliderHomeState();
@@ -36,25 +35,34 @@ class _SliderHomeState extends State<SliderHome> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(
-                'Top Destination',
-                style: TextStyle(
-                    fontSize: 22.0,
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.arrow_forward,
                     color: Colors.deepPurple,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5),
+                  ),
+                  Text(
+                    'News Top Rated',
+                    style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                        color: Colors.deepPurple),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: () {
                   // Make Action you need
                 },
-                child: Text(
-                  'See All',
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.5),
+                child: Row(
+                  children: <Widget>[
+                    Icon(
+                      FontAwesomeIcons.sortAmountDown,
+                      color: Colors.deepPurple,
+                      size: 15,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -80,9 +88,6 @@ class _SliderHomeState extends State<SliderHome> {
   }
 }
 
-
-
-
 class ItemCarousel extends StatelessWidget {
   List list;
   ItemCarousel({this.list});
@@ -96,8 +101,8 @@ class ItemCarousel extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           final dataList = list[index];
           return GestureDetector(
-            onTap: () {
-            },
+          
+            onTap: () {},
             child: Container(
               margin: EdgeInsets.all(10.0),
               width: 210.0,
@@ -120,11 +125,14 @@ class ItemCarousel extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              'My activities',
+                              dataList['news_title'],
                               style: TextStyle(
                                   fontSize: 22.0,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 1.2),
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               dataList['news_content'],
@@ -170,29 +178,32 @@ class ItemCarousel extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                'Paris',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 1.2),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Icon(
-                                    FontAwesomeIcons.locationArrow,
-                                    size: 10.0,
-                                    color: Colors.white,
+                              
+                              SizedBox(
+                                width: 90,
+                                height: 25,
+                                child: RaisedButton(
+                                  onPressed: (){},
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  color: Colors.deepPurple,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        FontAwesomeIcons.locationArrow,
+                                        size: 10.0,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(
+                                        width: 5.0,
+                                      ),
+                                      Text(
+                                        'Politic',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(
-                                    width: 5.0,
-                                  ),
-                                  Text(
-                                    'Politic',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ],
+                                ),
                               )
                             ],
                           ),

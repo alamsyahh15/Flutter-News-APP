@@ -1,87 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:news_project/ui_view/image_slider_home.dart';
-import 'package:news_project/ui_view/list_update.dart';
-
+import 'package:news_project/ui_view/all/all_list_page.dart';
+import 'package:news_project/ui_view/culanary/culinary_list_page.dart';
+import 'package:news_project/ui_view/seacrh/search_page.dart';
+import 'package:news_project/ui_view/sport/sport_list_page.dart';
+import 'package:news_project/ui_view/travel/travel_list_page.dart';
 
 class PageHome extends StatefulWidget {
   @override
   _PageHomeState createState() => _PageHomeState();
 }
 
-class _PageHomeState extends State<PageHome> {
-  int _selectedIndex = 0;
-  int _currentTab = 0;
+class _PageHomeState extends State<PageHome>
+    with SingleTickerProviderStateMixin {
+  TabController controllerTab;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controllerTab = new TabController(vsync: this, length: 4);
+  }
 
-  List<IconData> _icons = [
-    FontAwesomeIcons.plane,
-    FontAwesomeIcons.bed,
-    FontAwesomeIcons.walking,
-    FontAwesomeIcons.biking,
-  ];
-
-  _buildIcon(int index) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Container(
-        height: 60.0,
-        width: 60.0,
-        decoration: BoxDecoration(
-            color: _selectedIndex == index
-                ? Theme.of(context).accentColor
-                : Color(0xFFE7EBEE),
-            borderRadius: BorderRadius.circular(30.0)),
-        child: Icon(
-          _icons[index],
-          size: 25.0,
-          color: Theme.of(context).primaryColor,
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controllerTab.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.symmetric(vertical: 30.0),
+      drawer: Drawer(),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Column(
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(left: 20.0, right: 20.0),
-              child: Text(
-                'What would you like to find? ',
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+            SizedBox(
+              width: 160,
+              height: 30,
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                child: Text(
+                  "MBACA WEWARA",
+                  style: TextStyle(color: Colors.deepPurple),
+                ),
+                color: Colors.white,
+                onPressed: () {},
               ),
             ),
-            SizedBox(
-              height: 20.0,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: _icons
-                  .asMap()
-                  .entries
-                  .map<Widget>(
-                    (MapEntry map) => _buildIcon(map.key),
-                  )
-                  .toList(),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            SliderHome(),
-            SizedBox(
-              height: 20.0,
-            ),
-            ListUpdate()
-
+            Text(
+              "The News Application",
+              style: TextStyle(fontSize: 10, color: Colors.white),
+            )
           ],
         ),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: Icon(FontAwesomeIcons.search),
+              iconSize: 20,
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SearchPage()));
+              },
+            ),
+          )
+        ],
+      ),
+      body: TabBarView(
+        controller: controllerTab,
+        children: <Widget>[
+          AllPage(),
+          CulinerPage(),
+          SportPage(),
+          TravelPage(),
+        ],
+      ),
+      bottomNavigationBar: new TabBar(
+        controller: controllerTab,
+        unselectedLabelColor: Colors.black,
+        indicatorColor: Colors.purpleAccent,
+        labelColor: Colors.deepPurple,
+        tabs: <Widget>[
+          Tab(icon: Icon(Icons.dashboard)),
+          Tab(icon: Icon(FontAwesomeIcons.birthdayCake)),
+          Tab(
+            icon: Icon(FontAwesomeIcons.basketballBall),
+          ),
+          Tab(
+            icon: Icon(FontAwesomeIcons.planeDeparture),
+          )
+        ],
       ),
     );
   }
