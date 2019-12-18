@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:news_project/ui_view/all/image_slider_home.dart';
-import 'package:news_project/ui_view/culanary/list_update_culinary.dart';
+import 'list_update_culinary.dart';
 
 class CulinerPage extends StatelessWidget {
 

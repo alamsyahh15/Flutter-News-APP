@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:news_project/ui_view/all/all_list_page.dart';
-import 'package:news_project/ui_view/culanary/culinary_list_page.dart';
+import 'package:news_project/ui_view/culinary/culinary_list_page.dart';
 import 'package:news_project/ui_view/seacrh/search_page.dart';
 import 'package:news_project/ui_view/sport/sport_list_page.dart';
 import 'package:news_project/ui_view/travel/travel_list_page.dart';
