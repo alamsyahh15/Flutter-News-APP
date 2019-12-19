@@ -26,7 +26,12 @@ dependencies:
   http: ^0.12.0+2
   image_picker: ^0.6.1+8
   font_awesome_flutter: ^8.5.0
-  flutter_speed_dial: ^1.2.5
+  firebase_auth: ^0.15.3
+  firebase_messaging: ^6.0.9
+  firebase_database: ^3.1.1
+  firebase_core: ^0.4.3+1
+  flutter_local_notifications: ^0.9.0+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -71,6 +76,12 @@ flutter:
     - family: Campton
       fonts:
         - asset: fonts/Campton_Light.ttf
+    
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Regular.ttf
+        - asset: fonts/Montserrat-Bold.ttf
+          weight: 700
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic

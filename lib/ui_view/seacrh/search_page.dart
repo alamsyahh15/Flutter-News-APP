@@ -97,14 +97,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget performSearch() {
-    // filterList = new List();
-    // for (int i = 0; i < finalData.length;) {
-    //   var item = finalData[i];
-    //   if (item.toLowerCase().contains(keyword.toLowerCase())) {
-    //     filterList.add(item);
-    //   }
-    // }
-    // return _createFilterView();
+  
      return Flexible(
       child: FutureBuilder(
           future: getSearchData(),
@@ -120,20 +113,4 @@ class _SearchPageState extends State<SearchPage> {
           }),
     );
   }
-
-  // Widget _createFilterView() {
-  //   return Flexible(
-  //     child: ListView.builder(
-  //         itemCount: filterList.length,
-  //         itemBuilder: (BuildContext context, int index) {
-  //           return filterList.length != null
-  //               ? new ItemUpdate(
-  //                   list: filterList,
-  //                 )
-  //               : new Center(
-  //                   child: CircularProgressIndicator(),
-  //                 );
-  //         }),
-  //   );
-  // }
 }

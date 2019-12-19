@@ -13,15 +13,11 @@ class AddNews extends StatefulWidget {
 
 class _AddNewsState extends State<AddNews> {
   File image;
+  bool _isValid = true;
+  String keyword1 = "";
+  String keyword2 = "";
 
-  void saveData()async {
-    await http.post(ConstantFile().baseUrl+"addNews", body: {
-      'title': titleNews.text,
-      'content' : contentNews.text
-    });
-  }
-
-  // Function Take Image
+  // Function Take Image Form Camera
   Future _takeImage() async {
     print('Picker is Called');
     var imagefile = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -32,21 +28,34 @@ class _AddNewsState extends State<AddNews> {
     }
   }
 
+  // Function Take Image Form Galery
+  Future _takeImage1() async {
+    print('Picker is Called');
+    var imagefile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (imagefile != null) {
+      setState(() {
+        image = imagefile;
+      });
+    }
+  }
 
   // Function Edit Image / Upload Image
-  updateImage1(File imageFile) async {
+  saveData(File imageFile) async {
     // open a bytestream
     var stream =
-    new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+        new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
     // get file length
     var length = await imageFile.length();
 
     // string to uri
-    var uri = Uri.parse(ConstantFile().baseUrl + "changeImage");
+    var uri = Uri.parse(ConstantFile().baseUrl + "addNews");
     var request = new http.MultipartRequest('POST', uri);
     var multipart = new http.MultipartFile('userfile', stream, length,
         filename: image.path);
     request.files.add(multipart);
+    request.fields['title'] = _etTitleNews.text;
+    request.fields['content'] = _etContentNews.text;
+
     var response = await request.send();
     if (response.statusCode == 200) {
       print("Image Uploaded");
@@ -55,8 +64,37 @@ class _AddNewsState extends State<AddNews> {
     }
   }
 
-  TextEditingController titleNews = new TextEditingController();
-  TextEditingController contentNews = new TextEditingController();
+  TextEditingController _etTitleNews = new TextEditingController();
+  TextEditingController _etContentNews = new TextEditingController();
+  _AddNewsState() {
+    _etTitleNews.addListener(() {
+      if (_etTitleNews.text.isEmpty) {
+        setState(() {
+          _isValid = true;
+          keyword1 = "";
+        });
+      } else {
+        setState(() {
+          _isValid = false;
+          keyword1 = _etTitleNews.text;
+        });
+      }
+    });
+
+    _etContentNews.addListener(() {
+      if (_etContentNews.text.isEmpty) {
+        setState(() {
+          _isValid = true;
+          keyword2 = "";
+        });
+      } else {
+        setState(() {
+          _isValid = false;
+          keyword2 = _etContentNews.text;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,47 +102,51 @@ class _AddNewsState extends State<AddNews> {
       appBar: AppBar(
         title: Text("Add Data"),
         backgroundColor: Colors.deepPurple,
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: FlatButton(
+              onPressed: _isValid
+                  ? null
+                  : () {
+                      saveData(image);
+                      Navigator.pop(context);
+                    },
+              child: _isValid
+                  ? Text(
+                      "Posting",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    )
+                  : Text(
+                      "Posting",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+            ),
+          )
+        ],
       ),
       body: ListView(
         children: <Widget>[
           Column(
             children: <Widget>[
               Center(
-                child: Container(
-                  height: 200,
-                  child: image == null
-                      ? Text("No Image Picked")
-                      : Image.file(image),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 32, left: 24, right: 24, bottom: 16),
+                  child: Text(
+                    "Form Add News",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Colors.deepPurple),
+                  ),
                 ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  MaterialButton(
-                    color: Colors.deepPurple,
-                    onPressed: _takeImage,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Icon(
-                          Icons.camera,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          "Take Image",
-                          style: TextStyle(color: Colors.white),
-                        )
-                      ],
-                    ),
-                  )
-                ],
               ),
               Padding(
                 padding: const EdgeInsets.only(
                     top: 8, left: 16, right: 16, bottom: 8),
                 child: TextFormField(
-                  controller: titleNews,
+                  controller: _etTitleNews,
                   decoration: InputDecoration(
                     labelText: "Title News",
                     fillColor: Colors.white,
@@ -118,7 +160,7 @@ class _AddNewsState extends State<AddNews> {
                 padding: const EdgeInsets.only(
                     top: 8, left: 16, right: 16, bottom: 8),
                 child: TextFormField(
-                  controller: contentNews,
+                  controller: _etContentNews,
                   decoration: InputDecoration(
                     labelText: "Content News",
                     fillColor: Colors.white,
@@ -129,36 +171,71 @@ class _AddNewsState extends State<AddNews> {
                   maxLines: 15,
                 ),
               ),
+              Center(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                  child: image == null
+                      ? null
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(image)),
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(
                       height: 50,
-                      width: 100,
+                      width: 140,
                       child: MaterialButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                         color: Colors.deepPurple,
-                        onPressed: () {
-                          updateImage1(image);
-                          saveData();
-                          Navigator.pop(context);
-                        },
-                        child: Text("Save",style: TextStyle(color: Colors.white),),
+                        onPressed: _takeImage1,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Icon(
+                              Icons.image,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              "Form Gallery",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-
                     SizedBox(
-                      width: 100,
+                      width: 8,
+                    ),
+                    SizedBox(
                       height: 50,
+                      width: 145,
                       child: MaterialButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                         color: Colors.deepPurple,
-                        onPressed: (){},
-                        child: Text("Cancel",style: TextStyle(color: Colors.white),),
+                        onPressed: _takeImage,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Icon(
+                              Icons.camera,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              "Form Camera",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               )
@@ -168,6 +245,4 @@ class _AddNewsState extends State<AddNews> {
       ),
     );
   }
-
-
 }

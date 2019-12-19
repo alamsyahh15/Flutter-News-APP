@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:news_project/ui_page/page_home.dart';
+import 'package:news_project/ui_page/page_login.dart';
+import 'package:news_project/ui_view/login_signup/login_register.dart';
 
 void main() => runApp(MaterialApp(
-  home: PageHome(),
+  home: LoginRegisterPage(),
   debugShowCheckedModeBanner: false,
   theme: ThemeData(
         primaryColor: Color(0xFF512DA8),

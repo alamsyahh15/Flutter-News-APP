@@ -10,10 +10,13 @@ import 'package:image_picker/image_picker.dart';
 
 // ignore: must_be_immutable
 class DetailNews extends StatefulWidget {
-
   String titleDetail, contentDetail, imageDetail, idDetail;
-  DetailNews(
-      {this.titleDetail, this.contentDetail, this.imageDetail, this.idDetail,});
+  DetailNews({
+    this.titleDetail,
+    this.contentDetail,
+    this.imageDetail,
+    this.idDetail,
+  });
 
   @override
   _DetailNewsState createState() => _DetailNewsState();
@@ -96,7 +99,7 @@ class _DetailNewsState extends State<DetailNews> {
   // Function Take Image
   Future _takeImage() async {
     print('Picker is Called');
-    var imagefile = await ImagePicker.pickImage(source: ImageSource.camera);
+    var imagefile = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (imagefile != null) {
       setState(() {
         image = imagefile;
@@ -104,7 +107,7 @@ class _DetailNewsState extends State<DetailNews> {
     }
   }
 
-  void confirm(){
+  void confirm() {
     AlertDialog alertDialog = new AlertDialog(
       content: Text("Are You Sure Delete This Item ?"),
       actions: <Widget>[
@@ -112,13 +115,11 @@ class _DetailNewsState extends State<DetailNews> {
           color: Colors.green,
           onPressed: () {
             deleteData();
-            Navigator.of(context).push(MaterialPageRoute(builder:
-            (context) => new PageHome()
-            ));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => new PageHome()));
           },
           child: Text("Yes"),
         ),
-
         RaisedButton(
           color: Colors.red,
           onPressed: () {
@@ -126,7 +127,6 @@ class _DetailNewsState extends State<DetailNews> {
           },
           child: Text("Cancel"),
         ),
-
       ],
     );
     showDialog(context: context, child: alertDialog);
@@ -156,7 +156,9 @@ class _DetailNewsState extends State<DetailNews> {
                 },
               ),
             ),
-            SizedBox(width: 8,),
+            SizedBox(
+              width: 8,
+            ),
             Container(
               child: new FloatingActionButton(
                 heroTag: 'tagBtn2',
@@ -170,7 +172,9 @@ class _DetailNewsState extends State<DetailNews> {
                 },
               ),
             ),
-            SizedBox(width: 8,),
+            SizedBox(
+              width: 8,
+            ),
             Container(
               child: new FloatingActionButton(
                 heroTag: 'tagBtn3',
@@ -179,7 +183,7 @@ class _DetailNewsState extends State<DetailNews> {
                   color: Colors.white,
                 ),
                 backgroundColor: Colors.deepPurple,
-                onPressed: (){
+                onPressed: () {
                   confirm();
                 },
               ),
@@ -208,7 +212,6 @@ class _DetailNewsState extends State<DetailNews> {
       ),
     );
   }
-
 
   // Function Edit Title
   void updateNews() {
@@ -242,7 +245,6 @@ class _DetailNewsState extends State<DetailNews> {
     }
   }
 
-
   // Dialog Edit Data
   Future<Widget> _showDialog() async {
     return await showDialog(
@@ -259,21 +261,23 @@ class _DetailNewsState extends State<DetailNews> {
                     child: Center(
                       child: image == null
                           ? Center(child: Text("Not Image Selected"))
-                          : Image.file(
-                              image,
-                              fit: BoxFit.cover,
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.file(
+                                image,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                     ),
                   ),
                   TextFormField(
                     controller: titleNewsDetail,
                     decoration: InputDecoration(
-                        labelText: "Title News",
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide()
-                        ),
+                      labelText: "Title News",
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide()),
                     ),
                   )
                 ],
@@ -322,7 +326,6 @@ class _DetailNewsState extends State<DetailNews> {
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool boxIsScrolled) {
           return <Widget>[
-
             // Custom Appbar (Title, Image Etc)
             SliverAppBar(
               backgroundColor: Colors.transparent,
@@ -367,9 +370,9 @@ class _DetailNewsState extends State<DetailNews> {
     );
   }
 
-  void deleteData() async{
-    await http.post(ConstantFile().baseUrl+"deleteNews",body: {
-      'id' : widget.idDetail,
+  void deleteData() async {
+    await http.post(ConstantFile().baseUrl + "deleteNews", body: {
+      'id': widget.idDetail,
     });
   }
 }
