@@ -198,10 +198,10 @@ class _DetailNewsState extends State<DetailNews> {
   Widget _dateNews(MediaQueryData mediaQuery) {
     return Padding(
       padding: EdgeInsets.only(
-          left: 20.0,
-          top: mediaQuery.size.height / 1.79 + 24.0,
-          right: 20.0,
-          bottom: mediaQuery.padding.bottom + 16),
+        left: 20.0,
+        top: mediaQuery.size.height / 1.79 + 24.0,
+        right: 20.0,
+      ),
       child: Column(
         children: <Widget>[
           Row(
@@ -332,7 +332,7 @@ class _DetailNewsState extends State<DetailNews> {
               floating: true,
               pinned: false,
               snap: false,
-              expandedHeight: MediaQuery.of(context).size.height / 1.63,
+              expandedHeight: MediaQuery.of(context).size.height / 1.8,
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 background: Stack(
@@ -348,23 +348,22 @@ class _DetailNewsState extends State<DetailNews> {
           ];
         },
 
+
         // Detail Content
-        body: ListView(
-          children: <Widget>[
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
-              child: Container(
-                child: Card(
-                  elevation: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(widget.contentDetail),
-                  ),
-                ),
-              ),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(56), topLeft: Radius.circular(56)
+              )
             ),
-          ],
+            elevation: 5,
+            child: Padding(
+              padding: const EdgeInsets.only(top:32,left: 8, right: 8),
+              child: Text(widget.contentDetail,textAlign: TextAlign.justify,),
+            ),
+          ),
         ),
       ),
     );

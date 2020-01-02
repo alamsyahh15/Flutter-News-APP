@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:news_project/constant/ConstantFile.dart';
+import 'package:news_project/model/model_data.dart';
 import 'package:news_project/ui_view/all/list_update_all.dart';
 
 class SearchPage extends StatefulWidget {
@@ -18,13 +19,21 @@ class _SearchPageState extends State<SearchPage> {
   List finalData;
   String keyword;
 
-  Future<List> getSearchData() async{
-    final response = await http.post(ConstantFile().baseUrl + "searchNews",
-        body: {'keyword': _etSearch.text});
-    var data = jsonDecode(response.body);
-    finalData = data['data'];
-    return finalData;
+  Future<List<Datum>> getSearch() async {
+    final response = await http.post(ConstantFile().baseUrl + "searchNews"
+    ,body: {'keyword' : _etSearch.text});
+    // List data = jsonDecode(response.body);
+    ResultNews data = resultNewsFromJson(response.body);
+    return data.data;
   }
+
+//  Future<List> getSearchData() async{
+//    final response = await http.post(ConstantFile().baseUrl + "searchNews",
+//        body: {'keyword': _etSearch.text});
+//    var data = jsonDecode(response.body);
+//    finalData = data['data'];
+//    return finalData;
+//  }
 
   @override
   void initState() {
@@ -82,7 +91,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget _createListView() {
     return Flexible(
       child: FutureBuilder(
-          future: getSearchData(),
+          future: getSearch(),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
             return snapshot.hasData
@@ -97,10 +106,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget performSearch() {
-  
      return Flexible(
       child: FutureBuilder(
-          future: getSearchData(),
+          future: getSearch(),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
             return snapshot.hasData

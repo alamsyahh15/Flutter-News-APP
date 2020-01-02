@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -6,14 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:news_project/constant/ConstantFile.dart';
 import 'package:news_project/ui_page/detail_news.dart';
 
-
 class ListSport extends StatefulWidget {
   @override
   _ListSportState createState() => _ListSportState();
 }
 
 class _ListSportState extends State<ListSport> {
-  
   Future<List> getAllData() async {
     final response = await http.get(ConstantFile().baseUrl + "getSport");
     var data = jsonDecode(response.body);
@@ -70,20 +67,20 @@ class _ListSportState extends State<ListSport> {
           ),
         ),
         Container(
-            height: 350,
-            child: FutureBuilder(
-                future: getAllData(),
-                builder: (context, snapshot) {
-        if (snapshot.hasError) print(snapshot.error);
-        return snapshot.hasData
-            ? new ItemUpdate(
-                list: snapshot.data,
-              )
-            : new Center(
-                child: CircularProgressIndicator(),
-              );
-                }),
-          ),
+          height: 350,
+          child: FutureBuilder(
+              future: getAllData(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) print(snapshot.error);
+                return snapshot.hasData
+                    ? new ItemUpdate(
+                        list: snapshot.data,
+                      )
+                    : new Center(
+                        child: CircularProgressIndicator(),
+                      );
+              }),
+        ),
       ],
     );
   }
@@ -97,7 +94,7 @@ class ItemUpdate extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ListView.builder(
-      shrinkWrap: true,
+        shrinkWrap: true,
         scrollDirection: Axis.vertical,
         itemCount: list == null ? 0 : list.length,
         itemBuilder: (BuildContext context, int index) {

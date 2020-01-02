@@ -101,7 +101,6 @@ class ItemCarousel extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           final dataList = list[index];
           return GestureDetector(
-          
             onTap: () {},
             child: Container(
               margin: EdgeInsets.all(10.0),

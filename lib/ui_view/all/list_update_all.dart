@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:news_project/constant/ConstantFile.dart';
+import 'package:news_project/model/model_data.dart';
 import 'package:news_project/ui_page/detail_news.dart';
 
 class ListUpdate extends StatefulWidget {
@@ -13,11 +14,11 @@ class ListUpdate extends StatefulWidget {
 }
 
 class _ListUpdateState extends State<ListUpdate> {
-  Future<List> getAllData() async {
+  Future<List<Datum>> getAllData() async {
     final response = await http.get(ConstantFile().baseUrl + "getNews");
-    var data = jsonDecode(response.body);
-    List finalData = data['data'];
-    return finalData;
+    // List data = jsonDecode(response.body);
+    ResultNews data = resultNewsFromJson(response.body);
+    return data.data;
   }
 
   @override
@@ -68,21 +69,21 @@ class _ListUpdateState extends State<ListUpdate> {
             ],
           ),
         ),
-        Container(
-            height: 350,
-            child: FutureBuilder(
-                future: getAllData(),
-                builder: (context, snapshot) {
-        if (snapshot.hasError) print(snapshot.error);
-        return snapshot.hasData
-            ? new ItemUpdate(
-                list: snapshot.data,
-              )
-            : new Center(
-                child: CircularProgressIndicator(),
-              );
-                }),
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: FutureBuilder(
+              future: getAllData(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) print(snapshot.error);
+                return snapshot.hasData
+                    ? new ItemUpdate(
+                        list: snapshot.data,
+                      )
+                    : new Center(
+                        child: CircularProgressIndicator(),
+                      );
+              }),
+        ),
       ],
     );
   }
@@ -96,11 +97,11 @@ class ItemUpdate extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ListView.builder(
-      shrinkWrap: true,
+        shrinkWrap: true,
         scrollDirection: Axis.vertical,
         itemCount: list == null ? 0 : list.length,
         itemBuilder: (BuildContext context, int index) {
-          final dataList = list[index];
+          final Datum data = list[index];
           return Card(
             elevation: 5,
             child: Padding(
@@ -108,10 +109,15 @@ class ItemUpdate extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.of(context).push(new MaterialPageRoute(
                     builder: (context) => DetailNews(
-                        titleDetail: dataList['news_title'],
-                        imageDetail: dataList['news_image'],
-                        contentDetail: dataList['news_content'],
-                        idDetail: dataList['news_id']))),
+                        // titleDetail: dataList['news_title'],
+                        // imageDetail: dataList['news_image'],
+                        // contentDetail: dataList['news_content'],
+                        // idDetail: dataList['news_id']
+
+                        titleDetail: data.newsTitle,
+                        imageDetail: data.newsImage,
+                        contentDetail: data.newsContent,
+                        idDetail: data.newsId))),
                 child: Container(
                   child: Row(
                     children: <Widget>[
@@ -122,8 +128,8 @@ class ItemUpdate extends StatelessWidget {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.network(
-                                ConstantFile().imageUrl +
-                                    dataList['news_image'],
+                                ConstantFile().imageUrl + data.newsImage,
+                                // dataList['news_image'],
                                 height: 90.0,
                                 fit: BoxFit.cover,
                               ),
@@ -154,7 +160,8 @@ class ItemUpdate extends StatelessWidget {
 
                               //Title
                               Text(
-                                dataList['news_title'],
+                                data.newsTitle,
+                                // dataList['news_title'],
                                 overflow: TextOverflow.ellipsis,
                                 softWrap: false,
                                 style: TextStyle(
@@ -163,7 +170,8 @@ class ItemUpdate extends StatelessWidget {
 
                               //Content
                               Text(
-                                dataList['news_content'],
+                                // dataList['news_content'],
+                                data.newsContent,
                                 overflow: TextOverflow.ellipsis,
                                 softWrap: false,
                                 maxLines: 3,

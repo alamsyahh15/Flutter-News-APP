@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:news_project/constant/ConstantFile.dart';
 import 'package:news_project/ui_page/add_news.dart';
 import 'package:news_project/ui_view/all/all_list_page.dart';
 import 'package:news_project/ui_view/culinary/culinary_list_page.dart';
@@ -27,11 +30,40 @@ class PageHome extends StatefulWidget {
 class _PageHomeState extends State<PageHome>
     with SingleTickerProviderStateMixin {
   TabController controllerTab;
+  List listToken = [];
+
+  Future<List> getData()async{
+    final response = await http.get(ConstantFile().baseUrl+"getToken");
+    var data = jsonDecode(response.body);
+    var finalData = data['data'];
+    print('dataToken, $finalData');
+    return finalData;
+  }
+
+  Widget myToken(){
+    return FutureBuilder(
+        future: getData(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+          return listToken = snapshot.data;
+        });
+  }
+//  void finalToken(){
+//    for(int index = listToken.length; index > 0; index++){
+//      var finalData = listToken[index];
+//
+//      print('finalToken Data : ${finalData['token']}');
+//      print('finalToken Data : ${}');
+//    }
+//  }
+  
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     controllerTab = new TabController(vsync: this, length: 4);
+    getData();
+//    finalToken();
   }
 
   @override
@@ -42,22 +74,7 @@ class _PageHomeState extends State<PageHome>
   }
   int _selectedDrawerIndex = 0;
 
-  _getDrawerItemWidget(int pos) {
-    switch (pos) {
-      case 0:
-        return null;
-        // return new FirstFragment();
-      case 1:
-        return null;
-        // return new SecondFragment();
-      case 2:
-        return null;
-        // return new ThirdFragment();
 
-      default:
-        return new Text("Error");
-    }
-  }
 
   _onSelectItem(int index) {
     setState(() => _selectedDrawerIndex = index);

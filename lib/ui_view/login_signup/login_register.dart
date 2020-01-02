@@ -1,18 +1,24 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:news_project/constant/ConstantFile.dart';
+import 'package:news_project/service/base_auth.dart';
+import 'package:news_project/ui_page/page_home.dart';
 import 'package:news_project/ui_view/login_signup/clipper.dart';
-
+import 'package:http/http.dart' as http;
 
 class LoginRegisterPage extends StatefulWidget {
   @override
   _LoginRegisterPageState createState() => _LoginRegisterPageState();
 }
 
+enum FormMode { LOGIN, SIGNUP }
+
 class _LoginRegisterPageState extends State<LoginRegisterPage> {
-  
+  BaseAuth auth2 = Authentication();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
@@ -21,14 +27,69 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   String _password;
   String _displayName;
   bool _obsecure = false;
-  
-  
-  String teks = "";
+  final _formKey = new GlobalKey<FormState>();
+
+
+  String tokenMe = "";
   //declarate firebase messaging
   FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
+  //deklarasi untuk form login
+  FormMode _formMode = FormMode.LOGIN;
+  bool _isIos;
+  bool _isLoading;
+
+  //cek apakah form valid sebelum perform login atau signup
+  bool _validateAndSave() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
+  void _showDialogVerification() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Verivy Your Account'),
+            content: Text('Link to Verify account has been sent to your email'),
+            actions: <Widget>[
+              new FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: Text('Dismiss'))
+            ],
+          );
+        });
+  }
+
+  void _showDialogError() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Attention !!"),
+            content: Text("Please Check Your Email And Password"),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Dissmiss"),
+              )
+            ],
+          );
+        });
+  }
+
   //declarate local notifications
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
   var myMap = {};
   var title = '';
   var body = {};
@@ -40,41 +101,43 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     var android = AndroidInitializationSettings('mipmap/ic_launcher');
     var ios = IOSInitializationSettings();
     var platform = InitializationSettings(android, ios);
-    // flutterLocalNotificationsPlugin.initialize(platform);
+    flutterLocalNotificationsPlugin.initialize(platform);
 
     //konfigurasi FCM Firebase Cloud Messaging
     _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async{
+      onMessage: (Map<String, dynamic> message) async {
         print("on message $message");
 
         //jadikan mymap message
         myMap = message;
-
         //tampilkan notifikasi
         displayNotifications(message);
-        },
-      onResume: (Map<String, dynamic> message) async{
+      },
+      onResume: (Map<String, dynamic> message) async {
         print("on Resume $message");
-        },
-      onLaunch: (Map<String, dynamic> message) async{
+      },
+      onLaunch: (Map<String, dynamic> message) async {
         print("on Resume $message");
-        },
+      },
     );
 
     _firebaseMessaging.requestNotificationPermissions(
-      IosNotificationSettings(sound: true,alert: true, badge: true));
-    _firebaseMessaging.getToken().then((token){
+        IosNotificationSettings(sound: true, alert: true, badge: true));
+    _firebaseMessaging.getToken().then((token) {
       //updateToken Notifications
       updateToken(token);
       print(token);
+      saveToken(token);
+      myToken = token;
     });
   }
 
-  displayNotifications(Map<String, dynamic> message) async{
-    var android = new AndroidNotificationDetails("1", "channelName", "channelDescription");
+  displayNotifications(Map<String, dynamic> message) async {
+    var android = new AndroidNotificationDetails(
+        "1", "channelName", "channelDescription");
     var ios = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, ios);
-    message.forEach((nTitle,nBody){
+    message.forEach((nTitle, nBody) {
       title = nTitle;
       body = nBody;
     });
@@ -85,20 +148,31 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
         message['notification']['body'],
         platform);
   }
-  updateToken(String token){
-    print(token);
-    DatabaseReference databaseReference = new FirebaseDatabase().reference();
-    databaseReference.child('fcm-token/$token').set({"token" : token});
-    myToken = token;
-    teks = myToken;
-    setState(() {
 
+  void saveToken(String token) async {
+    await http.post(ConstantFile().baseUrl + "saveToken", body: {
+      'token' : token
     });
   }
 
 
+  updateToken(String token) {
+    print(token);
+    DatabaseReference databaseReference = new FirebaseDatabase().reference();
+    databaseReference.child('fcm-token/$token').set({"token": token});
+//    myToken = token;
+//    tokenMe = myToken;
+    setState(() {});
+  }
 
-
+  saveData(String token, String email, String displayName, String uid) {
+    // print(token);
+    DatabaseReference databaseReference = new FirebaseDatabase().reference();
+    databaseReference.child('fcm-user/$uid').set({"uid": uid, "token": token, "name": displayName, "email": email});
+    // myToken = token;
+    // teks = myToken;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +184,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     //GO logo widget
     Widget logo() {
       return Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.15),
+        padding:
+            EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.15),
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: 220,
@@ -128,14 +203,15 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                 ),
                 height: 154,
               )),
+              Text(myToken),
               Positioned(
                 child: Container(
                     height: 154,
                     child: Align(
                       child: Text(
-                        "GO",
+                        "MW",
                         style: TextStyle(
-                          fontSize: 120,
+                          fontSize: 92,
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).primaryColor,
                         ),
@@ -170,11 +246,12 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
 
     //input widget
     Widget _input(Icon icon, String hint, TextEditingController controller,
-        bool obsecure) {
+        bool obsecure, TextInputType inputType) {
       return Container(
         padding: EdgeInsets.only(left: 20, right: 20),
         child: TextField(
           controller: controller,
+          keyboardType: inputType,
           obscureText: obsecure,
           style: TextStyle(
             fontSize: 20,
@@ -229,19 +306,37 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
       );
     }
 
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    String userId = "";
     //login and register fuctions
 
-    void _loginUser() {
+    void _loginUser() async {
       _email = _emailController.text;
       _password = _passwordController.text;
+
+      userId = await auth2.loginUser(
+          _emailController.text, _passwordController.text);
+      if (userId.length == 0 && _emailController.text == null) {
+        _showDialogError();
+      } else {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => PageHome()));
+      }
+      print("user sign id : $userId");
       _emailController.clear();
       _passwordController.clear();
     }
 
-    void _registerUser() {
+    void _registerUser() async {
+      _displayName = _nameController.text;
       _email = _emailController.text;
       _password = _passwordController.text;
-      _displayName = _nameController.text;
+
+      userId = await auth2.registerUser(_email, _password);
+      auth2.sendEmailVerification();
+      _showDialogVerification();
+
+      // saveData(teks, email, displayName, uid)
       _emailController.clear();
       _passwordController.clear();
       _nameController.clear();
@@ -320,13 +415,21 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.only(bottom: 20, top: 60),
-                          child: _input(Icon(Icons.email), "EMAIL",
-                              _emailController, false),
+                          child: _input(
+                              Icon(Icons.email),
+                              "EMAIL",
+                              _emailController,
+                              false,
+                              TextInputType.emailAddress),
                         ),
                         Padding(
                           padding: EdgeInsets.only(bottom: 20),
-                          child: _input(Icon(Icons.lock), "PASSWORD",
-                              _passwordController, true),
+                          child: _input(
+                              Icon(Icons.lock),
+                              "PASSWORD",
+                              _passwordController,
+                              true,
+                              TextInputType.visiblePassword),
                         ),
                         SizedBox(
                           height: 20,
@@ -379,7 +482,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                           top: 10,
                           child: IconButton(
                             onPressed: () {
-                              Navigator.of(context).pop();
+                              // Navigator.of(context).pop();
+                              Navigator.pop(context);
                               _emailController.clear();
                               _passwordController.clear();
                               _nameController.clear();
@@ -454,20 +558,27 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                           bottom: 20,
                           top: 60,
                         ),
-                        child: _input(Icon(Icons.account_circle),
-                            "DISPLAY NAME", _nameController, false),
+                        child: _input(
+                            Icon(Icons.account_circle),
+                            "DISPLAY NAME",
+                            _nameController,
+                            false,
+                            TextInputType.text),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(
-                          bottom: 20,
-                        ),
-                        child: _input(Icon(Icons.email), "EMAIL",
-                            _emailController, false),
-                      ),
+                          padding: EdgeInsets.only(
+                            bottom: 20,
+                          ),
+                          child: _input(
+                              Icon(Icons.email),
+                              "EMAIL",
+                              _emailController,
+                              false,
+                              TextInputType.emailAddress)),
                       Padding(
                         padding: EdgeInsets.only(bottom: 20),
                         child: _input(Icon(Icons.lock), "PASSWORD",
-                            _passwordController, true),
+                            _passwordController, true, TextInputType.text),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
@@ -504,9 +615,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
         body: Column(
           children: <Widget>[
             logo(),
-
-            Center(child: Text(teks, style: TextStyle(color: Colors.white),)),
-
+            Center(
+                child: Text("",
+              // tokenMe,
+              style: TextStyle(color: Colors.white),
+            )),
             Padding(
               child: Container(
                 child: _button("LOGIN", primary, Colors.white, Colors.white,

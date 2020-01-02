@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:async/async.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_project/constant/ConstantFile.dart';
+import 'package:news_project/model/model_token.dart';
+import 'package:news_project/service/base_auth.dart';
 
 class AddNews extends StatefulWidget {
   @override
@@ -16,6 +22,50 @@ class _AddNewsState extends State<AddNews> {
   bool _isValid = true;
   String keyword1 = "";
   String keyword2 = "";
+
+  BaseAuth network = Authentication();
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  String serverToken = "AAAAvNr9L_g:APA91bGfbvMewuhdfph2lyUNuo_mkMe7vG5KtEgDn3b1K_42fdeapfAPuiYFbo9HVhrLop8IrtYkmG2kRRkjcMcJeOXx0nfHgTnf-ThFq26Q8Eij-NGR8YE8qJQ3vSSx2CVdD8LrO5mE";
+
+  Future<Map<String, dynamic>> sendMessage() async{
+    await _firebaseMessaging.requestNotificationPermissions(
+      IosNotificationSettings(sound: true,badge: true, alert: true, provisional: false)
+    );
+
+    await http.post(ConstantFile().firebaseUrl,
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': 'key=$serverToken',},
+      body: jsonEncode(
+        <String, dynamic>{
+          'registration_ids' : ["evrDhi9jIvI:APA91bGz9xZwoDXSng3NadAV_SosMJDu_evJszDhtJiSC_UoTJWDOh-05ZCWYi2N3DSZpVcqrEOroiG3g9y4O1Dj39f2n9t5POZbs7ryqpNQ_lTNSn4p-gVHY_7TDmCqbRNHB5yb2r2d","cyz4KmlBMLc:APA91bGM6VKRBDU6Vf39Z2ZHWN2u1RKZBY2g3OOzmLMOxGYckpJBPIUaEtRRpRfhykAWWXfkA2guRaFNogGXqQn1A0tI-kEl8D8_ip1N6nih-5_8OLL6GJMeeUtJvYTDkUWJWn8oGbMc","fjpJ-NK5TiI:APA91bEk3KHetOgjk1gq9UpEDRaXYDZkX8YE-bT73GmCggl9z3b0sJIupuH8cN0f3Y3ySBioFWxHdynhbJbDJPBS86wZ-F5j_ewHDRevQvsythQOkH0U71WCgsjBt_lzyb0wl7MFglxC"],
+//          'to' : '$tokenMe',
+          'collapse_key' : 'type_a',
+          'notification': <String, dynamic>{
+            "body" : "Please press this notification for looking new a News",
+            "title": "Guys Ada Update Berita Baru Lohh..."
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done'
+          },
+        },
+      ),
+    );
+    final Completer<Map<String, dynamic>> completer =
+    Completer<Map<String, dynamic>>();
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        completer.complete(message);
+      },
+    );
+    return completer.future;
+  }
+
+
+
 
   // Function Take Image Form Camera
   Future _takeImage() async {
@@ -96,6 +146,32 @@ class _AddNewsState extends State<AddNews> {
     });
   }
 
+  String tokenMe = "";
+  var myToken = '';
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, alert: true, badge: true));
+    _firebaseMessaging.getToken().then((token) {
+      //updateToken Notifications
+      printOut(token);
+      print(token);
+    });
+  }
+
+  printOut(String token) {
+    print(token);
+    myToken = token;
+    tokenMe = myToken;
+    setState(() {});
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +187,7 @@ class _AddNewsState extends State<AddNews> {
                   : () {
                       saveData(image);
                       Navigator.pop(context);
+                      sendMessage();
                     },
               child: _isValid
                   ? Text(

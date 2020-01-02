@@ -9,18 +9,20 @@ class AllPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: ListView(
-          padding: EdgeInsets.symmetric(vertical: 30.0),
-          children: <Widget>[
-            SizedBox(
-              height: 20.0,
-            ),
-            SliderHome(),
-            SizedBox(
-              height: 20.0,
-            ),
-            ListUpdate()
-          ],
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 20.0,
+              ),
+              SliderHome(),
+              SizedBox(
+                height: 20.0,
+              ),
+              ListUpdate()
+            ],
+          )
         ),
       );
   }
